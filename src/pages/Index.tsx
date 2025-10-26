@@ -92,6 +92,14 @@ export default function Index() {
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary"></div>
           </div>
           
+          <div className="mb-8">
+            <img 
+              src="https://cdn.poehali.dev/files/c2bb3e42-7c9f-40a7-9abe-140b9423984f.jpg" 
+              alt="Обручальные кольца" 
+              className="w-64 h-64 md:w-80 md:h-80 object-cover rounded-full mx-auto shadow-2xl border-4 border-white/50"
+            />
+          </div>
+          
           <h1 className="text-7xl md:text-8xl font-light mb-4 text-foreground tracking-wide">
             Алексей <span className="text-primary">&</span> Дарья
           </h1>
