@@ -79,37 +79,31 @@ export default function Index() {
         <div className="absolute bottom-20 left-10 text-4xl opacity-20 animate-float-delayed">💝</div>
       </div>
       
-      <header className="relative py-20 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-primary rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-40 h-40 bg-secondary rounded-full blur-3xl"></div>
+      <header className="relative h-screen overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/c2bb3e42-7c9f-40a7-9abe-140b9423984f.jpg)' }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-white"></div>
         </div>
         
-        <div className="relative z-10 max-w-4xl mx-auto animate-fade-in">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center px-6 text-center animate-fade-in">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary"></div>
-            <Icon name="Heart" className="text-primary" size={32} />
-            <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary"></div>
+            <div className="h-px w-16 bg-gradient-to-r from-transparent to-white"></div>
+            <Icon name="Heart" className="text-white drop-shadow-lg" size={32} />
+            <div className="h-px w-16 bg-gradient-to-l from-transparent to-white"></div>
           </div>
           
-          <div className="mb-8">
-            <img 
-              src="https://cdn.poehali.dev/files/c2bb3e42-7c9f-40a7-9abe-140b9423984f.jpg" 
-              alt="Обручальные кольца" 
-              className="w-64 h-64 md:w-80 md:h-80 object-cover rounded-full mx-auto shadow-2xl border-4 border-white/50"
-            />
-          </div>
-          
-          <h1 className="text-7xl md:text-8xl font-light mb-4 text-foreground tracking-wide">
+          <h1 className="text-7xl md:text-9xl font-light mb-6 text-white tracking-wide drop-shadow-2xl">
             Алексей <span className="text-primary">&</span> Дарья
           </h1>
           
-          <div className="flex items-center justify-center gap-3 text-xl md:text-2xl text-muted-foreground font-light">
-            <Icon name="Calendar" size={24} className="text-primary" />
-            <time dateTime="2025-06-06" className="tracking-wider">06.06.2025</time>
+          <div className="flex items-center justify-center gap-3 text-xl md:text-2xl text-white font-light mb-8">
+            <Icon name="Calendar" size={24} className="text-white drop-shadow-lg" />
+            <time dateTime="2025-06-06" className="tracking-wider drop-shadow-lg">06.06.2025</time>
           </div>
           
-          <p className="mt-6 text-lg text-muted-foreground font-light italic">
+          <p className="text-lg md:text-xl text-white font-light italic drop-shadow-lg">
             Наш особенный день в фотографиях
           </p>
         </div>
