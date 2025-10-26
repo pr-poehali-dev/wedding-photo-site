@@ -81,17 +81,6 @@ export default function Index() {
           <p className="mt-6 text-lg text-muted-foreground font-light italic">
             Наш особенный день в фотографиях
           </p>
-          
-          <div className="mt-8">
-            <Button 
-              variant="outline" 
-              onClick={() => window.location.href = '/admin'}
-              className="bg-white/50 backdrop-blur-sm hover:bg-white/80"
-            >
-              <Icon name="Settings" size={20} className="mr-2" />
-              Управление фотографиями
-            </Button>
-          </div>
         </div>
       </header>
 

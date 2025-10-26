@@ -10,8 +10,8 @@ def get_db_connection():
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Manage wedding photos - get list, add, delete
-    Args: event with httpMethod (GET/POST/DELETE), body for POST
+    Business: Manage wedding photos - get list, add, delete, reorder
+    Args: event with httpMethod (GET/POST/DELETE/PUT), body for POST/PUT
     Returns: JSON response with photos list or operation status
     '''
     method: str = event.get('httpMethod', 'GET')
@@ -21,7 +21,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, PUT, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
@@ -101,6 +101,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'body': json.dumps({'message': 'Photo deleted'}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'PUT':
+            body_data = json.loads(event.get('body', '{}'))
+            photo_orders = body_data.get('orders', [])
+            
+            for item in photo_orders:
+                photo_id = item.get('id')
+                new_order = item.get('display_order')
+                cur.execute(
+                    'UPDATE wedding_photos SET display_order = %s WHERE id = %s',
+                    (new_order, photo_id)
+                )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'message': 'Photos reordered'}),
                 'isBase64Encoded': False
             }
         
