@@ -145,6 +145,47 @@ export default function Admin() {
     setPassword('');
   };
 
+  const downloadAllPhotos = async () => {
+    if (photos.length === 0) {
+      toast({
+        title: 'Нет фотографий',
+        description: 'Нечего скачивать',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: 'Скачивание...',
+      description: `Загружаем ${photos.length} фотографий`
+    });
+
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+      try {
+        const response = await fetch(photo.url);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `photo-${i + 1}-${photo.alt.replace(/\s/g, '-')}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error('Ошибка при скачивании:', error);
+      }
+    }
+
+    toast({
+      title: 'Готово',
+      description: 'Все фотографии скачаны'
+    });
+  };
+
   const loadPhotos = async () => {
     try {
       const response = await fetch(PHOTOS_API);
@@ -341,6 +382,10 @@ export default function Admin() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-5xl font-light">Управление фотографиями</h1>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={downloadAllPhotos}>
+              <Icon name="Download" size={20} className="mr-2" />
+              Скачать все фото
+            </Button>
             <Button variant="outline" onClick={handleLogout}>
               <Icon name="LogOut" size={20} className="mr-2" />
               Выйти
