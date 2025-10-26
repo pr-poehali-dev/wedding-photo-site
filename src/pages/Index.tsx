@@ -1,43 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
-const photos = [
-  {
-    id: 1,
-    url: 'https://cdn.poehali.dev/projects/b3d2a9e2-198b-4e75-821e-efa9e6d0a5ee/files/6e2347c1-be61-49a8-8300-97e353d15dbb.jpg',
-    alt: 'Алексей и Дарья'
-  },
-  {
-    id: 2,
-    url: 'https://cdn.poehali.dev/projects/b3d2a9e2-198b-4e75-821e-efa9e6d0a5ee/files/2f27d723-cffa-4e60-b28c-355ba35fb4aa.jpg',
-    alt: 'Свадебное оформление'
-  },
-  {
-    id: 3,
-    url: 'https://cdn.poehali.dev/projects/b3d2a9e2-198b-4e75-821e-efa9e6d0a5ee/files/44fcff5f-4eb6-4382-84a9-b1961c0fa188.jpg',
-    alt: 'Обручальные кольца'
-  },
-  {
-    id: 4,
-    url: 'https://cdn.poehali.dev/projects/b3d2a9e2-198b-4e75-821e-efa9e6d0a5ee/files/6e2347c1-be61-49a8-8300-97e353d15dbb.jpg',
-    alt: 'Церемония'
-  },
-  {
-    id: 5,
-    url: 'https://cdn.poehali.dev/projects/b3d2a9e2-198b-4e75-821e-efa9e6d0a5ee/files/2f27d723-cffa-4e60-b28c-355ba35fb4aa.jpg',
-    alt: 'Детали свадьбы'
-  },
-  {
-    id: 6,
-    url: 'https://cdn.poehali.dev/projects/b3d2a9e2-198b-4e75-821e-efa9e6d0a5ee/files/44fcff5f-4eb6-4382-84a9-b1961c0fa188.jpg',
-    alt: 'Торжество'
-  }
-];
+const PHOTOS_API = 'https://functions.poehali.dev/033e2359-06e3-4d1b-829c-b250c1c918af';
+
+interface Photo {
+  id: number;
+  url: string;
+  alt: string;
+  display_order: number;
+}
 
 export default function Index() {
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const loadPhotos = async () => {
+      try {
+        const response = await fetch(PHOTOS_API);
+        const data = await response.json();
+        setPhotos(data.photos || []);
+      } catch (error) {
+        console.error('Failed to load photos:', error);
+      }
+    };
+    loadPhotos();
+  }, []);
 
   const openPhoto = (id: number) => {
     setSelectedPhoto(id);
@@ -90,6 +81,17 @@ export default function Index() {
           <p className="mt-6 text-lg text-muted-foreground font-light italic">
             Наш особенный день в фотографиях
           </p>
+          
+          <div className="mt-8">
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.href = '/admin'}
+              className="bg-white/50 backdrop-blur-sm hover:bg-white/80"
+            >
+              <Icon name="Settings" size={20} className="mr-2" />
+              Управление фотографиями
+            </Button>
+          </div>
         </div>
       </header>
 

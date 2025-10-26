@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get all photos",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Add new photo",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "url": "https://example.com/photo.jpg",
+        "alt": "Test photo"
+      },
+      "expectedStatus": 201
+    }
+  ]
+}
