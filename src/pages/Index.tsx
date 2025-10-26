@@ -54,6 +54,15 @@ export default function Index() {
 
   const currentPhoto = photos.find(p => p.id === selectedPhoto);
 
+  const downloadPhoto = (photo: Photo) => {
+    const a = document.createElement('a');
+    a.href = photo.url;
+    a.download = `${photo.alt.replace(/\s/g, '-')}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/30 via-white to-secondary/20">
       <header className="relative py-20 px-6 text-center overflow-hidden">
@@ -118,13 +127,22 @@ export default function Index() {
         <DialogContent className="max-w-7xl w-full h-[90vh] p-0 overflow-hidden bg-black/95 border-0">
           {currentPhoto && (
             <div className="relative w-full h-full flex items-center justify-center">
-              <button
-                onClick={closePhoto}
-                className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-3 transition-colors"
-                aria-label="Закрыть"
-              >
-                <Icon name="X" size={24} className="text-white" />
-              </button>
+              <div className="absolute top-4 right-4 z-50 flex gap-2">
+                <button
+                  onClick={() => downloadPhoto(currentPhoto)}
+                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-3 transition-colors"
+                  aria-label="Скачать фото"
+                >
+                  <Icon name="Download" size={24} className="text-white" />
+                </button>
+                <button
+                  onClick={closePhoto}
+                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-3 transition-colors"
+                  aria-label="Закрыть"
+                >
+                  <Icon name="X" size={24} className="text-white" />
+                </button>
+              </div>
 
               <button
                 onClick={prevPhoto}
