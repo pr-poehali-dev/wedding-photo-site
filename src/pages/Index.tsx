@@ -64,7 +64,21 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary/30 via-white to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-secondary/30 via-white to-secondary/20 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 text-6xl opacity-20 animate-float">🎀</div>
+        <div className="absolute top-40 right-20 text-5xl opacity-15 animate-float-delayed">🌹</div>
+        <div className="absolute top-60 left-1/4 text-4xl opacity-20 rotate-12">🎀</div>
+        <div className="absolute top-80 right-1/3 text-5xl opacity-15 -rotate-12 animate-float">💐</div>
+        <div className="absolute top-[500px] left-1/2 text-6xl opacity-20 animate-float-delayed">🌸</div>
+        <div className="absolute top-[700px] right-10 text-5xl opacity-15 rotate-45">🎀</div>
+        <div className="absolute top-[900px] left-20 text-4xl opacity-20 -rotate-12 animate-float">🌺</div>
+        <div className="absolute top-[1100px] right-1/4 text-5xl opacity-15 animate-float-delayed">🎀</div>
+        <div className="absolute top-[1300px] left-1/3 text-6xl opacity-20 rotate-12">🌷</div>
+        <div className="absolute bottom-40 right-20 text-5xl opacity-15 -rotate-45 animate-float">🎀</div>
+        <div className="absolute bottom-20 left-10 text-4xl opacity-20 animate-float-delayed">💝</div>
+      </div>
+      
       <header className="relative py-20 px-6 text-center overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-primary rounded-full blur-3xl"></div>
