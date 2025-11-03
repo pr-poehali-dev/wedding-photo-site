@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
 interface PhotoViewerProps {
-  photos: string[];
-  initialIndex: number;
+  photoIds: number[];
+  initialPhotoId: number;
+  photosApi: string;
   onClose: () => void;
 }
 
-export default function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps) {
-  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+export default function PhotoViewer({ photoIds, initialPhotoId, photosApi, onClose }: PhotoViewerProps) {
+  const [currentIndex, setCurrentIndex] = useState(photoIds.indexOf(initialPhotoId));
+  const [currentPhoto, setCurrentPhoto] = useState<{ url: string; alt: string } | null>(null);
+  const [loading, setLoading] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
@@ -28,12 +31,30 @@ export default function PhotoViewer({ photos, initialIndex, onClose }: PhotoView
     };
   }, [currentIndex]);
 
+  useEffect(() => {
+    loadCurrentPhoto();
+  }, [currentIndex]);
+
+  const loadCurrentPhoto = async () => {
+    setLoading(true);
+    try {
+      const photoId = photoIds[currentIndex];
+      const response = await fetch(`${photosApi}?id=${photoId}`);
+      const data = await response.json();
+      setCurrentPhoto({ url: data.url, alt: data.alt });
+    } catch (error) {
+      console.error('Ошибка загрузки фото:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
+    setCurrentIndex((prev) => (prev + 1) % photoIds.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+    setCurrentIndex((prev) => (prev - 1 + photoIds.length) % photoIds.length);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -59,13 +80,15 @@ export default function PhotoViewer({ photos, initialIndex, onClose }: PhotoView
   };
 
   const downloadPhoto = async () => {
+    if (!currentPhoto) return;
+    
     try {
-      const response = await fetch(photos[currentIndex]);
+      const response = await fetch(currentPhoto.url);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `photo-${currentIndex + 1}.jpg`;
+      link.download = `${currentPhoto.alt.replace(/\s/g, '-')}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -82,6 +105,7 @@ export default function PhotoViewer({ photos, initialIndex, onClose }: PhotoView
           onClick={downloadPhoto}
           className="text-white hover:text-primary transition-colors p-2"
           aria-label="Скачать"
+          disabled={!currentPhoto}
         >
           <Icon name="Download" size={28} />
         </button>
@@ -95,7 +119,7 @@ export default function PhotoViewer({ photos, initialIndex, onClose }: PhotoView
       </div>
 
       <div className="absolute top-4 left-4 z-50 text-white text-lg font-light">
-        {currentIndex + 1} / {photos.length}
+        {currentIndex + 1} / {photoIds.length}
       </div>
 
       <button
@@ -120,11 +144,16 @@ export default function PhotoViewer({ photos, initialIndex, onClose }: PhotoView
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <img
-          src={photos[currentIndex]}
-          alt={`Фото ${currentIndex + 1}`}
-          className="max-w-full max-h-full object-contain"
-        />
+        {loading && (
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-white border-t-transparent"></div>
+        )}
+        {currentPhoto && !loading && (
+          <img
+            src={currentPhoto.url}
+            alt={currentPhoto.alt}
+            className="max-w-full max-h-full object-contain"
+          />
+        )}
       </div>
     </div>
   );

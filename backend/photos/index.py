@@ -36,6 +36,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'GET':
             params = event.get('queryStringParameters', {})
             admin_mode = params.get('admin') == 'true'
+            photo_id = params.get('id')
+            
+            if photo_id:
+                cur.execute('SELECT id, url, alt, display_order FROM wedding_photos WHERE id = %s', (photo_id,))
+                row = cur.fetchone()
+                if row:
+                    photo = {'id': row[0], 'url': row[1], 'alt': row[2], 'display_order': row[3]}
+                    return {
+                        'statusCode': 200,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                        'body': json.dumps(photo),
+                        'isBase64Encoded': False
+                    }
+                else:
+                    return {
+                        'statusCode': 404,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                        'body': json.dumps({'error': 'Photo not found'}),
+                        'isBase64Encoded': False
+                    }
             
             if admin_mode:
                 cur.execute('SELECT id, SUBSTRING(url, 1, 100) as url_preview, alt, display_order, LENGTH(url) as size FROM wedding_photos ORDER BY display_order ASC')
@@ -45,10 +71,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     for row in rows
                 ]
             else:
-                cur.execute('SELECT id, url, alt, display_order FROM wedding_photos ORDER BY display_order ASC')
+                cur.execute('SELECT id, alt, display_order FROM wedding_photos ORDER BY display_order ASC')
                 rows = cur.fetchall()
                 photos = [
-                    {'id': row[0], 'url': row[1], 'alt': row[2], 'display_order': row[3]}
+                    {'id': row[0], 'alt': row[1], 'display_order': row[2]}
                     for row in rows
                 ]
             

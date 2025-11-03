@@ -1,15 +1,23 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import LazyPhoto from './LazyPhoto';
 import PhotoViewer from './PhotoViewer';
 
-interface InfinitePhotoGridProps {
-  photos: string[];
+interface Photo {
+  id: number;
+  alt: string;
+  display_order: number;
 }
 
-export default function InfinitePhotoGrid({ photos }: InfinitePhotoGridProps) {
-  const [displayedPhotos, setDisplayedPhotos] = useState<string[]>([]);
+interface InfinitePhotoGridProps {
+  photos: Photo[];
+  photosApi: string;
+}
+
+export default function InfinitePhotoGrid({ photos, photosApi }: InfinitePhotoGridProps) {
+  const [displayedPhotos, setDisplayedPhotos] = useState<Photo[]>([]);
   const [currentBatch, setCurrentBatch] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [selectedPhotoId, setSelectedPhotoId] = useState<number | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -51,25 +59,25 @@ export default function InfinitePhotoGrid({ photos }: InfinitePhotoGridProps) {
     };
   }, [displayedPhotos, photos.length, loadMorePhotos]);
 
-  const openViewer = (index: number) => {
-    setSelectedPhotoIndex(index);
+  const openViewer = (photoId: number) => {
+    setSelectedPhotoId(photoId);
     setViewerOpen(true);
   };
 
   return (
     <>
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
-        {displayedPhotos.map((photo, index) => (
+        {displayedPhotos.map((photo) => (
           <div
-            key={index}
+            key={photo.id}
             className="aspect-square cursor-pointer overflow-hidden bg-muted group"
-            onClick={() => openViewer(index)}
+            onClick={() => openViewer(photo.id)}
           >
-            <img
-              src={photo}
-              alt={`Фото ${index + 1}`}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            <LazyPhoto
+              id={photo.id}
+              alt={photo.alt}
+              photosApi={photosApi}
+              className="w-full h-full transition-transform duration-300 group-hover:scale-110"
             />
           </div>
         ))}
@@ -84,10 +92,11 @@ export default function InfinitePhotoGrid({ photos }: InfinitePhotoGridProps) {
         </div>
       )}
 
-      {viewerOpen && (
+      {viewerOpen && selectedPhotoId && (
         <PhotoViewer
-          photos={photos}
-          initialIndex={selectedPhotoIndex}
+          photoIds={photos.map(p => p.id)}
+          initialPhotoId={selectedPhotoId}
+          photosApi={photosApi}
           onClose={() => setViewerOpen(false)}
         />
       )}

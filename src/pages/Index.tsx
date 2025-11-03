@@ -7,7 +7,6 @@ const PHOTOS_API = 'https://functions.poehali.dev/033e2359-06e3-4d1b-829c-b250c1
 
 interface Photo {
   id: number;
-  url: string;
   alt: string;
   display_order: number;
 }
@@ -110,7 +109,7 @@ export default function Index() {
       </header>
 
       <main className="max-w-full pb-20">
-        <InfinitePhotoGrid photos={photos.map(p => p.url)} />
+        <InfinitePhotoGrid photos={photos} photosApi={PHOTOS_API} />
       </main>
 
       <VideoSection />
