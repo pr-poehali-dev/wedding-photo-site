@@ -54,9 +54,37 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
 
     for (const file of selectedFiles) {
       try {
-        const base64 = await new Promise<string>((resolve) => {
+        const compressedBase64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+              
+              const maxDimension = 1920;
+              if (width > maxDimension || height > maxDimension) {
+                if (width > height) {
+                  height = (height * maxDimension) / width;
+                  width = maxDimension;
+                } else {
+                  width = (width * maxDimension) / height;
+                  height = maxDimension;
+                }
+              }
+              
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx?.drawImage(img, 0, 0, width, height);
+              
+              resolve(canvas.toDataURL('image/jpeg', 0.85));
+            };
+            img.onerror = reject;
+            img.src = e.target?.result as string;
+          };
+          reader.onerror = reject;
           reader.readAsDataURL(file);
         });
 
@@ -66,7 +94,7 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            url: base64, 
+            url: compressedBase64, 
             alt: file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ')
           })
         });
