@@ -100,9 +100,9 @@ export default function Admin() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState('');
-  const [imageAlt, setImageAlt] = useState('');
-  const [uploadingFile, setUploadingFile] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
   const [editingVideo, setEditingVideo] = useState<number | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const { toast } = useToast();
@@ -258,71 +258,77 @@ export default function Admin() {
     }
   }, [authenticated]);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    
+    if (imageFiles.length === 0) {
       toast({
         title: 'Ошибка',
-        description: 'Пожалуйста, выберите изображение',
+        description: 'Пожалуйста, выберите изображения',
         variant: 'destructive'
       });
       return;
     }
-
-    setUploadingFile(true);
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64 = event.target?.result as string;
-      setImageUrl(base64);
-      setUploadingFile(false);
-      
-      toast({
-        title: 'Готово',
-        description: 'Изображение загружено. Теперь добавьте описание и нажмите "Добавить"'
-      });
-    };
-    reader.readAsDataURL(file);
+    
+    setSelectedFiles(imageFiles);
+    toast({
+      title: 'Готово',
+      description: `Выбrano ${imageFiles.length} фото. Нажмите "Загрузить" для добавления`
+    });
   };
 
-  const addPhoto = async () => {
-    if (!imageUrl || !imageAlt) {
+  const uploadPhotos = async () => {
+    if (selectedFiles.length === 0) {
       toast({
         title: 'Ошибка',
-        description: 'Заполните URL и описание фотографии',
+        description: 'Выберите фотографии для загрузки',
         variant: 'destructive'
       });
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch(PHOTOS_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: imageUrl, alt: imageAlt })
-      });
+    setUploading(true);
+    setUploadProgress(0);
+    
+    const total = selectedFiles.length;
+    let uploaded = 0;
 
-      if (response.ok) {
-        toast({
-          title: 'Успешно',
-          description: 'Фотография добавлена'
+    for (const file of selectedFiles) {
+      try {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.readAsDataURL(file);
         });
-        setImageUrl('');
-        setImageAlt('');
-        loadPhotos();
+
+        const response = await fetch(PHOTOS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            url: base64, 
+            alt: file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ')
+          })
+        });
+
+        if (response.ok) {
+          uploaded++;
+          setUploadProgress(Math.round((uploaded / total) * 100));
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки:', error);
       }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось добавить фотографию',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
     }
+
+    setUploading(false);
+    setSelectedFiles([]);
+    setUploadProgress(0);
+    loadPhotos();
+    
+    toast({
+      title: 'Готово!',
+      description: `Загружено ${uploaded} из ${total} фотографий`
+    });
   };
 
   const deletePhoto = async (id: number) => {
@@ -528,55 +534,56 @@ export default function Admin() {
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-2xl font-light">Добавить фотографию</CardTitle>
+            <CardTitle className="text-2xl font-light">Добавить фотографии</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Загрузить файл</label>
-              <div className="flex gap-4 items-center">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  disabled={uploadingFile}
-                  className="flex-1"
-                />
-                {uploadingFile && <span className="text-sm text-muted-foreground">Загрузка...</span>}
-              </div>
+              <label className="block text-sm font-medium mb-2">Выберите фотографии (можно несколько)</label>
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileSelect}
+                disabled={uploading}
+              />
             </div>
 
-            {imageUrl && (
-              <div>
-                <label className="block text-sm font-medium mb-2">Предпросмотр</label>
-                <img src={imageUrl} alt="Preview" className="w-48 h-48 object-cover rounded-lg" />
+            {selectedFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Выбрано файлов: {selectedFiles.length}</p>
+                <div className="max-h-40 overflow-y-auto space-y-1">
+                  {selectedFiles.map((file, idx) => (
+                    <div key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Icon name="Image" size={16} />
+                      {file.name}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Или введите URL изображения</label>
-              <Input
-                placeholder="https://example.com/photo.jpg"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Описание фотографии</label>
-              <Input
-                placeholder="Например: Алексей и Дарья"
-                value={imageAlt}
-                onChange={(e) => setImageAlt(e.target.value)}
-              />
-            </div>
+            {uploading && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Загрузка...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-primary h-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             <Button 
-              onClick={addPhoto} 
-              disabled={loading || !imageUrl || !imageAlt}
+              onClick={uploadPhotos} 
+              disabled={uploading || selectedFiles.length === 0}
               className="w-full"
             >
-              <Icon name="Plus" size={20} className="mr-2" />
-              Добавить фотографию
+              <Icon name="Upload" size={20} className="mr-2" />
+              {uploading ? 'Загрузка...' : `Загрузить ${selectedFiles.length > 0 ? `(${selectedFiles.length})` : ''}`}
             </Button>
           </CardContent>
         </Card>
