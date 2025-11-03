@@ -58,15 +58,41 @@ export default function PhotoViewer({ photos, initialIndex, onClose }: PhotoView
     setTouchEnd(0);
   };
 
+  const downloadPhoto = async () => {
+    try {
+      const response = await fetch(photos[currentIndex]);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `photo-${currentIndex + 1}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download photo:', error);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black">
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-50 text-white hover:text-primary transition-colors p-2"
-        aria-label="Закрыть"
-      >
-        <Icon name="X" size={32} />
-      </button>
+      <div className="absolute top-4 right-4 z-50 flex gap-2">
+        <button
+          onClick={downloadPhoto}
+          className="text-white hover:text-primary transition-colors p-2"
+          aria-label="Скачать"
+        >
+          <Icon name="Download" size={28} />
+        </button>
+        <button
+          onClick={onClose}
+          className="text-white hover:text-primary transition-colors p-2"
+          aria-label="Закрыть"
+        >
+          <Icon name="X" size={32} />
+        </button>
+      </div>
 
       <div className="absolute top-4 left-4 z-50 text-white text-lg font-light">
         {currentIndex + 1} / {photos.length}
