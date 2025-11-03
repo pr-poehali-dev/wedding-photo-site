@@ -79,7 +79,19 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
               const ctx = canvas.getContext('2d');
               ctx?.drawImage(img, 0, 0, width, height);
               
-              resolve(canvas.toDataURL('image/jpeg', 0.85));
+              let quality = 0.7;
+              let result = canvas.toDataURL('image/jpeg', quality);
+              
+              while (result.length > 500000 && quality > 0.3) {
+                quality -= 0.1;
+                result = canvas.toDataURL('image/jpeg', quality);
+              }
+              
+              if (result.length > 500000) {
+                reject(new Error('Файл слишком большой даже после сжатия'));
+              } else {
+                resolve(result);
+              }
             };
             img.onerror = reject;
             img.src = e.target?.result as string;

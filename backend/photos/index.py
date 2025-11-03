@@ -34,12 +34,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         if method == 'GET':
-            cur.execute('SELECT id, url, alt, display_order FROM wedding_photos ORDER BY display_order ASC')
-            rows = cur.fetchall()
-            photos = [
-                {'id': row[0], 'url': row[1], 'alt': row[2], 'display_order': row[3]}
-                for row in rows
-            ]
+            params = event.get('queryStringParameters', {})
+            admin_mode = params.get('admin') == 'true'
+            
+            if admin_mode:
+                cur.execute('SELECT id, SUBSTRING(url, 1, 100) as url_preview, alt, display_order, LENGTH(url) as size FROM wedding_photos ORDER BY display_order ASC')
+                rows = cur.fetchall()
+                photos = [
+                    {'id': row[0], 'url': row[1], 'alt': row[2], 'display_order': row[3], 'size': row[4]}
+                    for row in rows
+                ]
+            else:
+                cur.execute('SELECT id, url, alt, display_order FROM wedding_photos ORDER BY display_order ASC')
+                rows = cur.fetchall()
+                photos = [
+                    {'id': row[0], 'url': row[1], 'alt': row[2], 'display_order': row[3]}
+                    for row in rows
+                ]
             
             return {
                 'statusCode': 200,

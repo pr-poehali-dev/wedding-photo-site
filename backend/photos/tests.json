@@ -1,9 +1,9 @@
 {
   "tests": [
     {
-      "name": "Get all photos",
+      "name": "Get all photos (admin mode)",
       "method": "GET",
-      "path": "/",
+      "path": "/?admin=true",
       "expectedStatus": 200
     },
     {

@@ -62,11 +62,9 @@ function SortablePhotoItem({ photo, onDelete }: { photo: Photo; onDelete: (id: n
         <Icon name="GripVertical" size={24} className="text-muted-foreground" />
       </div>
       
-      <img
-        src={photo.url}
-        alt={photo.alt}
-        className="w-24 h-24 object-cover rounded-lg"
-      />
+      <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
+        <Icon name="Image" size={48} className="text-muted-foreground" />
+      </div>
       
       <div className="flex-1">
         <p className="font-medium">{photo.alt}</p>

@@ -123,7 +123,7 @@ export default function Admin() {
 
   const loadPhotos = async () => {
     try {
-      const response = await fetch(PHOTOS_API);
+      const response = await fetch(`${PHOTOS_API}?admin=true`);
       const data = await response.json();
       setPhotos(data.photos || []);
     } catch (error) {
