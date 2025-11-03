@@ -24,11 +24,19 @@ import { CSS } from '@dnd-kit/utilities';
 
 const PHOTOS_API = 'https://functions.poehali.dev/033e2359-06e3-4d1b-829c-b250c1c918af';
 const AUTH_API = 'https://functions.poehali.dev/13fc900d-534c-466a-bf99-be10845c68ad';
+const VIDEOS_API = 'https://functions.poehali.dev/ab3b063b-4d8c-4214-a451-c337a94f712a';
 
 interface Photo {
   id: number;
   url: string;
   alt: string;
+  display_order: number;
+}
+
+interface Video {
+  id: number;
+  title: string;
+  url: string | null;
   display_order: number;
 }
 
@@ -90,10 +98,13 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<number | null>(null);
+  const [videoUrl, setVideoUrl] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -200,9 +211,50 @@ export default function Admin() {
     }
   };
 
+  const loadVideos = async () => {
+    try {
+      const response = await fetch(VIDEOS_API);
+      const data = await response.json();
+      setVideos(data.videos || []);
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить видео',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const updateVideo = async (id: number, url: string | null) => {
+    try {
+      const response = await fetch(VIDEOS_API, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, url })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: url ? 'Видео обновлено' : 'Видео удалено'
+        });
+        setEditingVideo(null);
+        setVideoUrl('');
+        loadVideos();
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить видео',
+        variant: 'destructive'
+      });
+    }
+  };
+
   useEffect(() => {
     if (authenticated) {
       loadPhotos();
+      loadVideos();
     }
   }, [authenticated]);
 
@@ -380,7 +432,7 @@ export default function Admin() {
     <div className="min-h-screen bg-gradient-to-b from-secondary/30 via-white to-secondary/20 py-12 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-5xl font-light">Управление фотографиями</h1>
+          <h1 className="text-5xl font-light">Админ-панель</h1>
           <div className="flex gap-2">
             <Button variant="outline" onClick={downloadAllPhotos}>
               <Icon name="Download" size={20} className="mr-2" />
@@ -396,6 +448,83 @@ export default function Admin() {
             </Button>
           </div>
         </div>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl font-light">Управление видео</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {videos.map((video) => (
+                <div key={video.id} className="border rounded-lg p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-medium mb-2">{video.title}</h3>
+                      {editingVideo === video.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            placeholder="https://youtube.com/embed/VIDEO_ID"
+                            value={videoUrl}
+                            onChange={(e) => setVideoUrl(e.target.value)}
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={() => updateVideo(video.id, videoUrl)}>
+                              <Icon name="Check" size={16} className="mr-1" />
+                              Сохранить
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => {
+                              setEditingVideo(null);
+                              setVideoUrl('');
+                            }}>
+                              Отмена
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          {video.url ? (
+                            <p className="text-sm text-muted-foreground mb-2 break-all">{video.url}</p>
+                          ) : (
+                            <p className="text-sm text-muted-foreground italic">Видео не добавлено</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {editingVideo !== video.id && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingVideo(video.id);
+                            setVideoUrl(video.url || '');
+                          }}
+                        >
+                          <Icon name="Edit" size={16} className="mr-1" />
+                          {video.url ? 'Изменить' : 'Добавить'}
+                        </Button>
+                        {video.url && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              if (confirm('Удалить это видео?')) {
+                                updateVideo(video.id, null);
+                              }
+                            }}
+                          >
+                            <Icon name="Trash2" size={16} className="mr-1" />
+                            Удалить
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="mb-8">
           <CardHeader>
