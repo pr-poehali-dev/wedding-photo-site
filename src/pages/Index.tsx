@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import InfinitePhotoGrid from '@/components/InfinitePhotoGrid';
 
 const PHOTOS_API = 'https://functions.poehali.dev/033e2359-06e3-4d1b-829c-b250c1c918af';
 
@@ -109,91 +108,9 @@ export default function Index() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {photos.map((photo, index) => (
-            <div
-              key={photo.id}
-              className="group relative aspect-square overflow-hidden rounded-lg shadow-lg cursor-pointer animate-fade-in hover:shadow-2xl transition-all duration-300"
-              style={{ animationDelay: `${index * 100}ms` }}
-              onClick={() => openPhoto(photo.id)}
-            >
-              <img
-                src={photo.url}
-                alt={photo.alt}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                  <p className="text-sm font-light">{photo.alt}</p>
-                </div>
-              </div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/90 backdrop-blur-sm rounded-full p-4">
-                  <Icon name="Maximize2" size={24} className="text-primary" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <main className="max-w-full pb-20">
+        <InfinitePhotoGrid photos={photos.map(p => p.url)} />
       </main>
-
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-7xl w-full h-[90vh] p-0 overflow-hidden bg-black/95 border-0">
-          {currentPhoto && (
-            <div className="relative w-full h-full flex items-center justify-center">
-              <div className="absolute top-4 right-4 z-50 flex gap-2">
-                <button
-                  onClick={() => downloadPhoto(currentPhoto)}
-                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-3 transition-colors"
-                  aria-label="Скачать фото"
-                >
-                  <Icon name="Download" size={24} className="text-white" />
-                </button>
-                <button
-                  onClick={closePhoto}
-                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-3 transition-colors"
-                  aria-label="Закрыть"
-                >
-                  <Icon name="X" size={24} className="text-white" />
-                </button>
-              </div>
-
-              <button
-                onClick={prevPhoto}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-50 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-4 transition-colors"
-                aria-label="Предыдущее фото"
-              >
-                <Icon name="ChevronLeft" size={32} className="text-white" />
-              </button>
-
-              <button
-                onClick={nextPhoto}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-50 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-4 transition-colors"
-                aria-label="Следующее фото"
-              >
-                <Icon name="ChevronRight" size={32} className="text-white" />
-              </button>
-
-              <img
-                src={currentPhoto.url}
-                alt={currentPhoto.alt}
-                className="max-w-full max-h-full object-contain animate-scale-in"
-              />
-
-              <div className="absolute bottom-8 left-0 right-0 text-center">
-                <p className="text-white text-lg font-light bg-black/30 backdrop-blur-sm inline-block px-6 py-2 rounded-full">
-                  {currentPhoto.alt}
-                </p>
-                <p className="text-white/60 text-sm mt-2">
-                  {selectedPhoto} / {photos.length}
-                </p>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       <footer className="border-t border-border/50 py-12 text-center">
         <div className="flex items-center justify-center gap-3 mb-4">
