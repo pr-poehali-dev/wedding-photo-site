@@ -72,7 +72,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'id': new_id, 'message': 'Photo added'}),
+                'body': json.dumps({'success': True, 'id': new_id, 'message': 'Photo added'}),
                 'isBase64Encoded': False
             }
         
