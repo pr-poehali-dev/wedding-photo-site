@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import InfinitePhotoGrid from '@/components/InfinitePhotoGrid';
+import VideoSection from '@/components/VideoSection';
 
 const PHOTOS_API = 'https://functions.poehali.dev/033e2359-06e3-4d1b-829c-b250c1c918af';
 
@@ -111,6 +112,8 @@ export default function Index() {
       <main className="max-w-full pb-20">
         <InfinitePhotoGrid photos={photos.map(p => p.url)} />
       </main>
+
+      <VideoSection />
 
       <footer className="border-t border-border/50 py-12 text-center">
         <div className="flex items-center justify-center gap-3 mb-4">
