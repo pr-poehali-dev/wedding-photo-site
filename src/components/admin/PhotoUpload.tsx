@@ -60,6 +60,8 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
           reader.readAsDataURL(file);
         });
 
+        console.log(`Загрузка ${file.name}...`);
+        
         const response = await fetch(photosApi, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -69,12 +71,27 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
           })
         });
 
-        if (response.ok) {
+        const result = await response.json();
+        console.log(`Ответ для ${file.name}:`, result);
+
+        if (response.ok && result.success) {
           uploaded++;
           setUploadProgress(Math.round((uploaded / total) * 100));
+        } else {
+          console.error(`Ошибка для ${file.name}:`, result);
+          toast({
+            title: `Ошибка: ${file.name}`,
+            description: result.error || 'Неизвестная ошибка',
+            variant: 'destructive'
+          });
         }
       } catch (error) {
         console.error('Ошибка загрузки:', error);
+        toast({
+          title: `Ошибка: ${file.name}`,
+          description: error instanceof Error ? error.message : 'Ошибка сети',
+          variant: 'destructive'
+        });
       }
     }
 
