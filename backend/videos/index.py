@@ -7,7 +7,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: Manage wedding videos - get list and update video URLs
     Args: event with httpMethod (GET/PUT/OPTIONS), body for PUT requests
-    Returns: JSON with videos list or update confirmation
+    Returns: JSON with videos list or update confirmation (v2 with CORS fix)
     '''
     method: str = event.get('httpMethod', 'GET')
     
