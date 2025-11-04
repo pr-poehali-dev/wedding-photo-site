@@ -74,9 +74,15 @@ export default function Index() {
   };
 
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollToVideo, setShowScrollToVideo] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
+      const videoSection = document.getElementById('videos');
+      if (videoSection) {
+        const rect = videoSection.getBoundingClientRect();
+        setShowScrollToVideo(rect.top > window.innerHeight);
+      }
       setShowScrollTop(window.scrollY > 500);
     };
 
@@ -86,14 +92,16 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/30 via-white to-secondary/20 relative overflow-hidden">
-      <button
-        onClick={scrollToVideos}
-        className="fixed top-6 left-6 z-40 bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-full p-4 backdrop-blur-sm flex items-center gap-2 group"
-        aria-label="Перейти к видео"
-      >
-        <Icon name="Video" size={24} />
-        <span className="text-sm font-medium hidden sm:inline">К видео</span>
-      </button>
+      {showScrollToVideo && (
+        <button
+          onClick={scrollToVideos}
+          className="fixed top-6 left-6 z-40 bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-full p-4 backdrop-blur-sm flex items-center gap-2 group"
+          aria-label="Перейти к видео"
+        >
+          <Icon name="Video" size={24} />
+          <span className="text-sm font-medium hidden sm:inline">К видео</span>
+        </button>
+      )}
 
       {showScrollTop && (
         <button
