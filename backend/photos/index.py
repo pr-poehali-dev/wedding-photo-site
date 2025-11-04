@@ -12,7 +12,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: Manage wedding photos - get list, add, delete, reorder
     Args: event with httpMethod (GET/POST/DELETE/PUT), body for POST/PUT
-    Returns: JSON response with photos list or operation status
+    Returns: JSON response with photos list or operation status (v2 with CORS fix)
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -36,7 +36,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = get_db_connection()
         cur = conn.cursor()
         if method == 'GET':
-            params = event.get('queryStringParameters', {})
+            params = event.get('queryStringParameters') or {}
             admin_mode = params.get('admin') == 'true'
             photo_id = params.get('id')
             
@@ -105,7 +105,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'DELETE':
-            params = event.get('queryStringParameters', {})
+            params = event.get('queryStringParameters') or {}
             photo_id = params.get('id')
             
             if not photo_id:
