@@ -150,8 +150,17 @@ export default function Admin() {
           description: url ? 'Видео обновлено' : 'Видео удалено'
         });
         loadVideos();
+      } else {
+        const error = await response.text();
+        console.error('Update video error:', error);
+        toast({
+          title: 'Ошибка',
+          description: `Не удалось обновить видео (${response.status})`,
+          variant: 'destructive'
+        });
       }
     } catch (error) {
+      console.error('Update video failed:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось обновить видео',
