@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import { getPhotoById, getPhotoUrl } from '@/utils/photoDb';
 
 interface PhotoViewerProps {
   photoIds: number[];
@@ -10,7 +11,7 @@ interface PhotoViewerProps {
 
 const fullPhotoCache = new Map<number, { url: string; alt: string }>();
 
-export default function PhotoViewer({ photoIds, initialPhotoId, photosApi, onClose }: PhotoViewerProps) {
+export default function PhotoViewer({ photoIds, initialPhotoId, onClose }: PhotoViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(photoIds.indexOf(initialPhotoId));
   const [currentPhoto, setCurrentPhoto] = useState<{ url: string; alt: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,11 +48,12 @@ export default function PhotoViewer({ photoIds, initialPhotoId, photosApi, onClo
 
     setLoading(true);
     try {
-      const response = await fetch(`${photosApi}?id=${photoId}`);
-      const data = await response.json();
-      const photo = { url: data.url, alt: data.alt };
-      fullPhotoCache.set(photoId, photo);
-      setCurrentPhoto(photo);
+      const photoData = await getPhotoById(photoId);
+      if (photoData) {
+        const photo = { url: getPhotoUrl(photoData), alt: photoData.alt };
+        fullPhotoCache.set(photoId, photo);
+        setCurrentPhoto(photo);
+      }
     } catch (error) {
       console.error('Ошибка загрузки фото:', error);
     } finally {

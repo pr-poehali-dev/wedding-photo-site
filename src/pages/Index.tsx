@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import InfinitePhotoGrid from '@/components/InfinitePhotoGrid';
 import VideoSection from '@/components/VideoSection';
+import { getAllPhotos } from '@/utils/photoDb';
 
 const PHOTOS_API = 'https://functions.poehali.dev/033e2359-06e3-4d1b-829c-b250c1c918af';
 
@@ -20,9 +21,8 @@ export default function Index() {
   useEffect(() => {
     const loadPhotos = async () => {
       try {
-        const response = await fetch(PHOTOS_API);
-        const data = await response.json();
-        setPhotos(data.photos || []);
+        const fetchedPhotos = await getAllPhotos();
+        setPhotos(fetchedPhotos);
       } catch (error) {
         console.error('Failed to load photos:', error);
       }

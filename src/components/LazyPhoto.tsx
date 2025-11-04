@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon';
+import { getPhotoById, getThumbnailUrl } from '@/utils/photoDb';
 
 interface LazyPhotoProps {
   id: number;
@@ -11,7 +12,7 @@ interface LazyPhotoProps {
 
 const photoCache = new Map<number, string>();
 
-export default function LazyPhoto({ id, thumbnailUrl, alt, photosApi, className = '' }: LazyPhotoProps) {
+export default function LazyPhoto({ id, thumbnailUrl, alt, className = '' }: LazyPhotoProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(thumbnailUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -57,11 +58,12 @@ export default function LazyPhoto({ id, thumbnailUrl, alt, photosApi, className 
 
     setLoading(true);
     try {
-      const response = await fetch(`${photosApi}?id=${id}`);
-      const data = await response.json();
-      const url = data.thumbnail_url || data.url;
-      photoCache.set(id, url);
-      setImageUrl(url);
+      const photo = await getPhotoById(id);
+      if (photo) {
+        const url = getThumbnailUrl(photo) || photo.url;
+        photoCache.set(id, url);
+        setImageUrl(url);
+      }
     } catch (err) {
       setError(true);
       console.error('Ошибка загрузки фото:', err);
