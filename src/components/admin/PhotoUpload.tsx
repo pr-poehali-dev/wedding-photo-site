@@ -135,17 +135,17 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
           })
         });
 
-        const result = await response.json();
-        console.log(`Ответ для ${file.name}:`, result);
+        const uploadResult = await response.json();
+        console.log(`Ответ для ${file.name}:`, uploadResult);
 
-        if (response.ok && result.success) {
+        if (response.ok && uploadResult.success) {
           uploaded++;
           setUploadProgress(Math.round((uploaded / total) * 100));
         } else {
-          console.error(`Ошибка для ${file.name}:`, result);
+          console.error(`Ошибка для ${file.name}:`, uploadResult);
           toast({
             title: `Ошибка: ${file.name}`,
-            description: result.error || 'Неизвестная ошибка',
+            description: uploadResult.error || 'Неизвестная ошибка',
             variant: 'destructive'
           });
         }
