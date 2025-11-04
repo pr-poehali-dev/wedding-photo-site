@@ -99,11 +99,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn = psycopg2.connect(dsn)
             cur = conn.cursor()
             
-            cur.execute("""
+            cur.execute(f"""
                 SELECT url, thumbnail_url, alt 
                 FROM wedding_photos 
-                WHERE id = %s
-            """, (photo_id,))
+                WHERE id = {int(photo_id)}
+            """)
             
             row = cur.fetchone()
             if not row:
@@ -152,23 +152,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if cdn_full_url or cdn_thumb_url:
                 update_parts = []
-                params = []
                 
                 if cdn_full_url:
-                    update_parts.append('cdn_full_url = %s')
-                    params.append(cdn_full_url)
+                    escaped_full = cdn_full_url.replace("'", "''")
+                    update_parts.append(f"cdn_full_url = '{escaped_full}'")
                 
                 if cdn_thumb_url:
-                    update_parts.append('cdn_thumbnail_url = %s')
-                    params.append(cdn_thumb_url)
-                
-                params.append(photo_id)
+                    escaped_thumb = cdn_thumb_url.replace("'", "''")
+                    update_parts.append(f"cdn_thumbnail_url = '{escaped_thumb}'")
                 
                 cur.execute(f"""
                     UPDATE wedding_photos 
                     SET {', '.join(update_parts)}
-                    WHERE id = %s
-                """, params)
+                    WHERE id = {int(photo_id)}
+                """)
                 
                 conn.commit()
             
