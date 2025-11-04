@@ -62,8 +62,23 @@ export default function Index() {
     document.body.removeChild(a);
   };
 
+  const scrollToVideos = () => {
+    const videoSection = document.getElementById('videos');
+    if (videoSection) {
+      videoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/30 via-white to-secondary/20 relative overflow-hidden">
+      <button
+        onClick={scrollToVideos}
+        className="fixed top-6 left-6 z-40 bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-full p-4 backdrop-blur-sm flex items-center gap-2 group"
+        aria-label="Перейти к видео"
+      >
+        <Icon name="Video" size={24} />
+        <span className="text-sm font-medium hidden sm:inline">К видео</span>
+      </button>
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-10 text-6xl opacity-20 animate-float">🎀</div>
         <div className="absolute top-40 right-20 text-5xl opacity-15 animate-float-delayed">🌹</div>

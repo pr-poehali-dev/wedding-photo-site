@@ -41,7 +41,7 @@ export default function VideoSection() {
   const hasAnyVideo = videos.some(v => v.url);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-20">
+    <section id="videos" className="max-w-7xl mx-auto px-6 py-20">
       <div className="text-center mb-12">
         <div className="flex items-center justify-center gap-4 mb-6">
           <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary"></div>
