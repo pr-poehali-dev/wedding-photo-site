@@ -58,7 +58,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'PUT':
             body_data = json.loads(event.get('body', '{}'))
-            video_id = body_data.get('id')
+            video_id = int(body_data.get('id'))
             url = body_data.get('url')
             
             if not video_id:
@@ -70,17 +70,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             if url:
-                cursor.execute('''
+                escaped_url = url.replace("'", "''")
+                cursor.execute(f"""
                     UPDATE wedding_videos 
-                    SET url = %s, updated_at = CURRENT_TIMESTAMP 
-                    WHERE id = %s
-                ''', (url, video_id))
+                    SET url = '{escaped_url}', updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = {video_id}
+                """)
             else:
-                cursor.execute('''
+                cursor.execute(f"""
                     UPDATE wedding_videos 
                     SET url = NULL, updated_at = CURRENT_TIMESTAMP 
-                    WHERE id = %s
-                ''', (video_id,))
+                    WHERE id = {video_id}
+                """)
             
             conn.commit()
             
