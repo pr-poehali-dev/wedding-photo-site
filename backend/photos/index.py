@@ -32,10 +32,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    conn = get_db_connection()
-    cur = conn.cursor()
-    
     try:
+        conn = get_db_connection()
+        cur = conn.cursor()
         if method == 'GET':
             params = event.get('queryStringParameters', {})
             admin_mode = params.get('admin') == 'true'
@@ -156,6 +155,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
     
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
+        }
+    
     finally:
-        cur.close()
-        conn.close()
+        if 'cur' in locals():
+            cur.close()
+        if 'conn' in locals():
+            conn.close()
