@@ -14,7 +14,7 @@ interface Photo {
 }
 
 export default function MigratePhotos() {
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState('39c7a0f5b0e9c9f641ec878c97f69e26');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<{ message: string; type: 'info' | 'success' | 'error' }[]>([]);
