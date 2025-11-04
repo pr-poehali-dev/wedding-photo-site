@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Check admin password for authentication
+    Business: Check admin password for authentication  
     Args: event with httpMethod (POST), body with password
     Returns: JSON with auth status
     '''
