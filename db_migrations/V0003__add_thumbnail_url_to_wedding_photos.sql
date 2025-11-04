@@ -1,0 +1,1 @@
+ALTER TABLE wedding_photos ADD COLUMN thumbnail_url TEXT;

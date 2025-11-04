@@ -3,19 +3,25 @@ import Icon from '@/components/ui/icon';
 
 interface LazyPhotoProps {
   id: number;
+  thumbnailUrl: string | null;
   alt: string;
   photosApi: string;
   className?: string;
 }
 
-export default function LazyPhoto({ id, alt, photosApi, className = '' }: LazyPhotoProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+export default function LazyPhoto({ id, thumbnailUrl, alt, photosApi, className = '' }: LazyPhotoProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(thumbnailUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
-  const hasLoaded = useRef(false);
+  const hasLoaded = useRef(!!thumbnailUrl);
 
   useEffect(() => {
+    if (thumbnailUrl) {
+      setImageUrl(thumbnailUrl);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -39,14 +45,14 @@ export default function LazyPhoto({ id, alt, photosApi, className = '' }: LazyPh
         observer.unobserve(imgRef.current);
       }
     };
-  }, []);
+  }, [thumbnailUrl]);
 
   const loadPhoto = async () => {
     setLoading(true);
     try {
       const response = await fetch(`${photosApi}?id=${id}`);
       const data = await response.json();
-      setImageUrl(data.url);
+      setImageUrl(data.thumbnail_url || data.url);
     } catch (err) {
       setError(true);
       console.error('Ошибка загрузки фото:', err);

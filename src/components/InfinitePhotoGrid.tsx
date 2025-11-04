@@ -4,6 +4,7 @@ import PhotoViewer from './PhotoViewer';
 
 interface Photo {
   id: number;
+  thumbnail_url: string | null;
   alt: string;
   display_order: number;
 }
@@ -75,6 +76,7 @@ export default function InfinitePhotoGrid({ photos, photosApi }: InfinitePhotoGr
           >
             <LazyPhoto
               id={photo.id}
+              thumbnailUrl={photo.thumbnail_url}
               alt={photo.alt}
               photosApi={photosApi}
               className="w-full h-full transition-transform duration-300 group-hover:scale-110"

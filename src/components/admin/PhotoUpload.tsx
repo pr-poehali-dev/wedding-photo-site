@@ -54,44 +54,67 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
 
     for (const file of selectedFiles) {
       try {
-        const compressedBase64 = await new Promise<string>((resolve, reject) => {
+        const result = await new Promise<{ full: string; thumbnail: string }>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
-              const canvas = document.createElement('canvas');
-              let width = img.width;
-              let height = img.height;
+              const fullCanvas = document.createElement('canvas');
+              let fullWidth = img.width;
+              let fullHeight = img.height;
               
               const maxDimension = 1920;
-              if (width > maxDimension || height > maxDimension) {
-                if (width > height) {
-                  height = (height * maxDimension) / width;
-                  width = maxDimension;
+              if (fullWidth > maxDimension || fullHeight > maxDimension) {
+                if (fullWidth > fullHeight) {
+                  fullHeight = (fullHeight * maxDimension) / fullWidth;
+                  fullWidth = maxDimension;
                 } else {
-                  width = (width * maxDimension) / height;
-                  height = maxDimension;
+                  fullWidth = (fullWidth * maxDimension) / fullHeight;
+                  fullHeight = maxDimension;
                 }
               }
               
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx?.drawImage(img, 0, 0, width, height);
+              fullCanvas.width = fullWidth;
+              fullCanvas.height = fullHeight;
+              const fullCtx = fullCanvas.getContext('2d');
+              fullCtx?.drawImage(img, 0, 0, fullWidth, fullHeight);
               
               let quality = 0.7;
-              let result = canvas.toDataURL('image/jpeg', quality);
+              let fullImage = fullCanvas.toDataURL('image/jpeg', quality);
               
-              while (result.length > 500000 && quality > 0.3) {
+              while (fullImage.length > 500000 && quality > 0.3) {
                 quality -= 0.1;
-                result = canvas.toDataURL('image/jpeg', quality);
+                fullImage = fullCanvas.toDataURL('image/jpeg', quality);
               }
               
-              if (result.length > 500000) {
+              if (fullImage.length > 500000) {
                 reject(new Error('Файл слишком большой даже после сжатия'));
-              } else {
-                resolve(result);
+                return;
               }
+              
+              const thumbCanvas = document.createElement('canvas');
+              let thumbWidth = img.width;
+              let thumbHeight = img.height;
+              
+              const thumbMaxDimension = 400;
+              if (thumbWidth > thumbMaxDimension || thumbHeight > thumbMaxDimension) {
+                if (thumbWidth > thumbHeight) {
+                  thumbHeight = (thumbHeight * thumbMaxDimension) / thumbWidth;
+                  thumbWidth = thumbMaxDimension;
+                } else {
+                  thumbWidth = (thumbWidth * thumbMaxDimension) / thumbHeight;
+                  thumbHeight = thumbMaxDimension;
+                }
+              }
+              
+              thumbCanvas.width = thumbWidth;
+              thumbCanvas.height = thumbHeight;
+              const thumbCtx = thumbCanvas.getContext('2d');
+              thumbCtx?.drawImage(img, 0, 0, thumbWidth, thumbHeight);
+              
+              const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.8);
+              
+              resolve({ full: fullImage, thumbnail });
             };
             img.onerror = reject;
             img.src = e.target?.result as string;
@@ -106,7 +129,8 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            url: compressedBase64, 
+            url: result.full,
+            thumbnail_url: result.thumbnail,
             alt: file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ')
           })
         });

@@ -7,6 +7,7 @@ const PHOTOS_API = 'https://functions.poehali.dev/033e2359-06e3-4d1b-829c-b250c1
 
 interface Photo {
   id: number;
+  thumbnail_url: string | null;
   alt: string;
   display_order: number;
 }

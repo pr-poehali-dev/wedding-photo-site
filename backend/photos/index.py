@@ -39,10 +39,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             photo_id = params.get('id')
             
             if photo_id:
-                cur.execute('SELECT id, url, alt, display_order FROM wedding_photos WHERE id = %s', (photo_id,))
+                cur.execute('SELECT id, url, thumbnail_url, alt, display_order FROM wedding_photos WHERE id = %s', (photo_id,))
                 row = cur.fetchone()
                 if row:
-                    photo = {'id': row[0], 'url': row[1], 'alt': row[2], 'display_order': row[3]}
+                    photo = {'id': row[0], 'url': row[1], 'thumbnail_url': row[2], 'alt': row[3], 'display_order': row[4]}
                     return {
                         'statusCode': 200,
                         'headers': {
@@ -64,17 +64,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
             
             if admin_mode:
-                cur.execute('SELECT id, SUBSTRING(url, 1, 100) as url_preview, alt, display_order, LENGTH(url) as size FROM wedding_photos ORDER BY display_order ASC')
+                cur.execute('SELECT id, SUBSTRING(url, 1, 100) as url_preview, thumbnail_url, alt, display_order, LENGTH(url) as size FROM wedding_photos ORDER BY display_order ASC')
                 rows = cur.fetchall()
                 photos = [
-                    {'id': row[0], 'url': row[1], 'alt': row[2], 'display_order': row[3], 'size': row[4]}
+                    {'id': row[0], 'url': row[1], 'thumbnail_url': row[2], 'alt': row[3], 'display_order': row[4], 'size': row[5]}
                     for row in rows
                 ]
             else:
-                cur.execute('SELECT id, alt, display_order FROM wedding_photos ORDER BY display_order ASC')
+                cur.execute('SELECT id, thumbnail_url, alt, display_order FROM wedding_photos ORDER BY display_order ASC')
                 rows = cur.fetchall()
                 photos = [
-                    {'id': row[0], 'alt': row[1], 'display_order': row[2]}
+                    {'id': row[0], 'thumbnail_url': row[1], 'alt': row[2], 'display_order': row[3]}
                     for row in rows
                 ]
             
@@ -91,14 +91,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
             url = body_data.get('url', '')
+            thumbnail_url = body_data.get('thumbnail_url', url)
             alt = body_data.get('alt', 'Свадебное фото')
             
             cur.execute('SELECT COALESCE(MAX(display_order), 0) + 1 FROM wedding_photos')
             next_order = cur.fetchone()[0]
             
             cur.execute(
-                'INSERT INTO wedding_photos (url, alt, display_order) VALUES (%s, %s, %s) RETURNING id',
-                (url, alt, next_order)
+                'INSERT INTO wedding_photos (url, thumbnail_url, alt, display_order) VALUES (%s, %s, %s, %s) RETURNING id',
+                (url, thumbnail_url, alt, next_order)
             )
             new_id = cur.fetchone()[0]
             conn.commit()
