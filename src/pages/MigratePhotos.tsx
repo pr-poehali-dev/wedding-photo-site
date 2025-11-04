@@ -67,7 +67,18 @@ export default function MigratePhotos() {
     addLog('Загрузка списка фотографий из базы...', 'info');
 
     try {
-      const response = await fetch(MIGRATE_API);
+      const response = await fetch(MIGRATE_API, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
       
       const photosToMigrate = data.photos || [];
@@ -84,7 +95,11 @@ export default function MigratePhotos() {
         try {
           const uploadResponse = await fetch(MIGRATE_API, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            mode: 'cors',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
             body: JSON.stringify({
               api_key: apiKey,
               photo_id: photo.id
