@@ -41,38 +41,25 @@ export default function Admin() {
 
   const handleLogin = async (password: string) => {
     setAuthLoading(true);
-    try {
-      const response = await fetch(AUTH_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+    
+    const correctPassword = 'admin2025';
+    
+    if (password === correctPassword) {
+      localStorage.setItem('wedding_admin_auth', 'true');
+      setAuthenticated(true);
+      toast({
+        title: 'Добро пожаловать!',
+        description: 'Вы успешно вошли в админ-панель'
       });
-      
-      const data = await response.json();
-      
-      if (data.authenticated) {
-        localStorage.setItem('wedding_admin_auth', 'true');
-        setAuthenticated(true);
-        toast({
-          title: 'Добро пожаловать!',
-          description: 'Вы успешно вошли в админ-панель'
-        });
-      } else {
-        toast({
-          title: 'Ошибка',
-          description: 'Неверный пароль',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
+    } else {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось выполнить вход',
+        description: 'Неверный пароль',
         variant: 'destructive'
       });
-    } finally {
-      setAuthLoading(false);
     }
+    
+    setAuthLoading(false);
   };
 
   const handleLogout = () => {
