@@ -10,8 +10,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     cors_headers = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Methods': '*',
         'Access-Control-Allow-Headers': '*',
+        'Access-Control-Expose-Headers': '*',
+        'Access-Control-Allow-Credentials': 'false',
         'Access-Control-Max-Age': '86400'
     }
     
@@ -19,7 +21,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'OPTIONS':
         return {
-            'statusCode': 200,
+            'statusCode': 204,
             'headers': cors_headers,
             'body': '',
             'isBase64Encoded': False
