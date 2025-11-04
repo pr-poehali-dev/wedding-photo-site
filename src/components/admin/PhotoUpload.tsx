@@ -63,7 +63,7 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
               let fullWidth = img.width;
               let fullHeight = img.height;
               
-              const maxDimension = 1920;
+              const maxDimension = 1200;
               if (fullWidth > maxDimension || fullHeight > maxDimension) {
                 if (fullWidth > fullHeight) {
                   fullHeight = (fullHeight * maxDimension) / fullWidth;
@@ -79,15 +79,15 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
               const fullCtx = fullCanvas.getContext('2d');
               fullCtx?.drawImage(img, 0, 0, fullWidth, fullHeight);
               
-              let quality = 0.7;
+              let quality = 0.6;
               let fullImage = fullCanvas.toDataURL('image/jpeg', quality);
               
-              while (fullImage.length > 500000 && quality > 0.3) {
-                quality -= 0.1;
+              while (fullImage.length > 150000 && quality > 0.2) {
+                quality -= 0.05;
                 fullImage = fullCanvas.toDataURL('image/jpeg', quality);
               }
               
-              if (fullImage.length > 500000) {
+              if (fullImage.length > 150000) {
                 reject(new Error('Файл слишком большой даже после сжатия'));
                 return;
               }
@@ -96,7 +96,7 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
               let thumbWidth = img.width;
               let thumbHeight = img.height;
               
-              const thumbMaxDimension = 400;
+              const thumbMaxDimension = 300;
               if (thumbWidth > thumbMaxDimension || thumbHeight > thumbMaxDimension) {
                 if (thumbWidth > thumbHeight) {
                   thumbHeight = (thumbHeight * thumbMaxDimension) / thumbWidth;
@@ -112,7 +112,7 @@ export default function PhotoUpload({ onPhotosUploaded, photosApi }: PhotoUpload
               const thumbCtx = thumbCanvas.getContext('2d');
               thumbCtx?.drawImage(img, 0, 0, thumbWidth, thumbHeight);
               
-              const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.8);
+              const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.7);
               
               resolve({ full: fullImage, thumbnail });
             };

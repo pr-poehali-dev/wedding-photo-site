@@ -22,6 +22,7 @@ import { CSS } from '@dnd-kit/utilities';
 interface Photo {
   id: number;
   url: string;
+  thumbnail_url?: string;
   alt: string;
   display_order: number;
 }
@@ -62,8 +63,19 @@ function SortablePhotoItem({ photo, onDelete }: { photo: Photo; onDelete: (id: n
         <Icon name="GripVertical" size={24} className="text-muted-foreground" />
       </div>
       
-      <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
-        <Icon name="Image" size={48} className="text-muted-foreground" />
+      <div className="w-24 h-24 bg-muted rounded-lg overflow-hidden">
+        {photo.thumbnail_url ? (
+          <img 
+            src={photo.thumbnail_url} 
+            alt={photo.alt}
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Icon name="Image" size={48} className="text-muted-foreground" />
+          </div>
+        )}
       </div>
       
       <div className="flex-1">

@@ -8,6 +8,8 @@ interface PhotoViewerProps {
   onClose: () => void;
 }
 
+const fullPhotoCache = new Map<number, { url: string; alt: string }>();
+
 export default function PhotoViewer({ photoIds, initialPhotoId, photosApi, onClose }: PhotoViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(photoIds.indexOf(initialPhotoId));
   const [currentPhoto, setCurrentPhoto] = useState<{ url: string; alt: string } | null>(null);
@@ -36,12 +38,20 @@ export default function PhotoViewer({ photoIds, initialPhotoId, photosApi, onClo
   }, [currentIndex]);
 
   const loadCurrentPhoto = async () => {
+    const photoId = photoIds[currentIndex];
+    
+    if (fullPhotoCache.has(photoId)) {
+      setCurrentPhoto(fullPhotoCache.get(photoId)!);
+      return;
+    }
+
     setLoading(true);
     try {
-      const photoId = photoIds[currentIndex];
       const response = await fetch(`${photosApi}?id=${photoId}`);
       const data = await response.json();
-      setCurrentPhoto({ url: data.url, alt: data.alt });
+      const photo = { url: data.url, alt: data.alt };
+      fullPhotoCache.set(photoId, photo);
+      setCurrentPhoto(photo);
     } catch (error) {
       console.error('Ошибка загрузки фото:', error);
     } finally {

@@ -9,6 +9,8 @@ interface LazyPhotoProps {
   className?: string;
 }
 
+const photoCache = new Map<number, string>();
+
 export default function LazyPhoto({ id, thumbnailUrl, alt, photosApi, className = '' }: LazyPhotoProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(thumbnailUrl);
   const [loading, setLoading] = useState(false);
@@ -48,11 +50,18 @@ export default function LazyPhoto({ id, thumbnailUrl, alt, photosApi, className 
   }, [thumbnailUrl]);
 
   const loadPhoto = async () => {
+    if (photoCache.has(id)) {
+      setImageUrl(photoCache.get(id)!);
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch(`${photosApi}?id=${id}`);
       const data = await response.json();
-      setImageUrl(data.thumbnail_url || data.url);
+      const url = data.thumbnail_url || data.url;
+      photoCache.set(id, url);
+      setImageUrl(url);
     } catch (err) {
       setError(true);
       console.error('Ошибка загрузки фото:', err);

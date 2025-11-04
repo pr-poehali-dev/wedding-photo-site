@@ -22,7 +22,7 @@ export default function InfinitePhotoGrid({ photos, photosApi }: InfinitePhotoGr
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const PHOTOS_PER_BATCH = 30;
+  const PHOTOS_PER_BATCH = 20;
 
   const loadMorePhotos = useCallback(() => {
     const start = currentBatch * PHOTOS_PER_BATCH;
