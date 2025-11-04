@@ -47,10 +47,13 @@ export default function VideoManagement({ videos, onUpdateVideo }: VideoManageme
                   {editingVideo === video.id ? (
                     <div className="space-y-2">
                       <Input
-                        placeholder="https://youtube.com/embed/VIDEO_ID"
+                        placeholder="YouTube или VK ссылка (например: https://vk.com/video-123_456)"
                         value={videoUrl}
                         onChange={(e) => setVideoUrl(e.target.value)}
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Поддерживаются: YouTube (youtube.com, youtu.be) и VK видео
+                      </p>
                       <div className="flex gap-2">
                         <Button size="sm" onClick={() => handleSave(video.id)}>
                           <Icon name="Check" size={16} className="mr-1" />

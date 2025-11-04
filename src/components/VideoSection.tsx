@@ -10,6 +10,24 @@ interface Video {
 
 const VIDEOS_API = 'https://functions.poehali.dev/ab3b063b-4d8c-4214-a451-c337a94f712a';
 
+const getEmbedUrl = (url: string): string => {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    const videoId = url.includes('youtu.be') 
+      ? url.split('youtu.be/')[1]?.split('?')[0]
+      : new URLSearchParams(url.split('?')[1]).get('v');
+    return `https://www.youtube.com/embed/${videoId}`;
+  }
+  
+  if (url.includes('vk.com/video')) {
+    const match = url.match(/video(-?\d+_\d+)/);
+    if (match) {
+      return `https://vk.com/video_ext.php?oid=${match[1].split('_')[0]}&id=${match[1].split('_')[1]}`;
+    }
+  }
+  
+  return url;
+};
+
 export default function VideoSection() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +82,7 @@ export default function VideoSection() {
           >
             {video.url ? (
               <iframe
-                src={video.url}
+                src={getEmbedUrl(video.url)}
                 title={video.title}
                 className="w-full h-full"
                 allowFullScreen
