@@ -69,6 +69,21 @@ export default function Index() {
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/30 via-white to-secondary/20 relative overflow-hidden">
       <button
@@ -79,6 +94,16 @@ export default function Index() {
         <Icon name="Video" size={24} />
         <span className="text-sm font-medium hidden sm:inline">К видео</span>
       </button>
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-40 bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-full p-4 backdrop-blur-sm animate-fade-in"
+          aria-label="Наверх"
+        >
+          <Icon name="ArrowUp" size={24} />
+        </button>
+      )}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-10 text-6xl opacity-20 animate-float">🎀</div>
         <div className="absolute top-40 right-20 text-5xl opacity-15 animate-float-delayed">🌹</div>
